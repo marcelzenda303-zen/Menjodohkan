@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menjodohkan IPA Kelas VII</title>
+<style>
+:root{--bg:#f4f6f9;--card:#fff;--ink:#1b2430;--mute:#5b6675;--line:#d5dbe3;--accent:#1f6f8b;--ok:#1e7b4f;--okbg:#e5f4ec;--bad:#b3392f;--badbg:#fbeae8}
+@media (prefers-color-scheme:dark){:root{--bg:#141a21;--card:#1c242d;--ink:#e8edf2;--mute:#9aa6b4;--line:#33404d;--accent:#6bc0dc;--ok:#6fd1a0;--okbg:#17332a;--bad:#ff8f84;--badbg:#3a1f1d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 14px 60px}
+h1{font-size:1.4rem;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:16px}
+.head{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}
+.no{font-weight:700}
+.tp{font-weight:700;color:var(--accent);border:1px solid var(--accent);border-radius:4px;padding:0 6px;font-size:.85rem}
+.ins{margin:0 0 12px}
+.row{display:grid;grid-template-columns:minmax(110px,1fr) 2fr;gap:8px 12px;align-items:center;padding:8px;border-radius:6px;border:1px solid transparent}
+.row+.row{margin-top:6px}
+.row label{font-weight:600}
+select{width:100%;padding:8px;font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:6px}
+select:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.row.ok{background:var(--okbg);border-color:var(--ok)}
+.row.bad{background:var(--badbg);border-color:var(--bad)}
+.fb{grid-column:1/-1;font-size:.92rem;margin:0}
+.ok .fb{color:var(--ok)}.bad .fb{color:var(--bad)}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;bottom:0;background:var(--bg);padding:12px 0;border-top:1px solid var(--line)}
+button{font:inherit;font-weight:600;padding:10px 18px;border-radius:6px;border:1px solid var(--accent);cursor:pointer}
+#cek{background:var(--accent);color:#fff}
+@media (prefers-color-scheme:dark){#cek{color:#10202a}}
+#ulang{background:transparent;color:var(--accent)}
+#hasil{font-weight:700}
+@media (max-width:480px){.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+  <h1>Menjodohkan: IPA Kelas VII</h1>
+  <p class="sub">Pilih pasangan yang tepat untuk setiap pernyataan, lalu tekan Periksa jawaban.</p>
+  <div id="soal"></div>
+  <div class="bar">
+    <button id="cek" type="button">Periksa jawaban</button>
+    <button id="ulang" type="button">Ulangi</button>
+    <span id="hasil" role="status" aria-live="polite"></span>
+  </div>
+</main>
+<script>
+// key[i] = nomor urut pasangan benar (dalam R) untuk premis ke-i
+var Q = [
+  {no:29, tp:"IA.1", t:"Jodohkan besaran dengan satuan SI-nya!",
+   L:["Panjang","Massa","Waktu","Suhu"], R:["kilogram","sekon","meter","kelvin"], key:[2,0,1,3]},
+  {no:30, tp:"IA.2", t:"Jodohkan metode pemisahan campuran dengan contoh penerapannya!",
+   L:["Filtrasi","Destilasi","Kromatografi","Sublimasi"],
+   R:["memisahkan pigmen warna pada tinta","memisahkan pasir dari air","memperoleh air tawar dari air laut","memisahkan kapur barus dari campuran pasir"], key:[1,2,0,3]},
+  {no:31, tp:"IA.3", t:"Jodohkan istilah dengan contoh atau pengertiannya!",
+   L:["Konduksi","Konveksi","Radiasi","Kalor jenis"],
+   R:["terjadinya angin darat dan angin laut","panas matahari sampai ke bumi","ujung besi ikut panas saat ujung lainnya dibakar","banyaknya kalor untuk menaikkan suhu 1 kg zat sebesar 1 °C"], key:[2,0,1,3]},
+  {no:32, tp:"IA.4", t:"Jodohkan istilah dengan pernyataannya!",
+   L:["Hukum I Newton","Hukum II Newton","Hukum III Newton","Tekanan"],
+   R:["gaya aksi dan reaksi sama besar dan berlawanan arah","percepatan sebanding dengan gaya dan berbanding terbalik dengan massa","gaya yang bekerja pada setiap satuan luas bidang tekan","benda cenderung mempertahankan keadaan diam atau geraknya"], key:[3,1,0,2]}
+];
+var box = document.getElementById("soal"), hasil = document.getElementById("hasil");
+
+function acak(n){var a=[],i,j,t;for(i=0;i<n;i++)a.push(i);
+  for(i=n-1;i>0;i--){j=Math.floor(Math.random()*(i+1));t=a[i];a[i]=a[j];a[j]=t}return a}
+
+function bangun(){
+  box.innerHTML = ""; hasil.textContent = "";
+  Q.forEach(function(q){
+    var card = document.createElement("section"); card.className = "card";
+    var h = '<div class="head"><span class="no">Soal ' + q.no + '</span><span class="tp">' + q.tp + '</span></div><p class="ins">' + q.t + '</p>';
+    var order = acak(q.R.length);
+    q.L.forEach(function(l, i){
+      var id = "s" + q.no + "_" + i;
+      var opts = '<option value="">Pilih pasangan</option>';
+      order.forEach(function(k){ opts += '<option value="' + k + '">' + q.R[k] + '</option>'; });
+      h += '<div class="row" id="r' + id + '"><label for="' + id + '">' + (i+1) + '. ' + l + '</label><select id="' + id + '">' + opts + '</select><p class="fb" hidden></p></div>';
+    });
+    card.innerHTML = h; box.appendChild(card);
+  });
+}
+
+function periksa(){
+  var benar = 0, total = 0, kosong = 0;
+  Q.forEach(function(q){
+    q.L.forEach(function(l, i){
+      var id = "s" + q.no + "_" + i, sel = document.getElementById(id), row = document.getElementById("r" + id), fb = row.querySelector(".fb");
+      total++; row.className = "row"; fb.hidden = false;
+      if (sel.value === "") { kosong++; row.className = "row bad"; fb.textContent = "Belum dijawab."; return; }
+      if (+sel.value === q.key[i]) { benar++; row.className = "row ok"; fb.textContent = "Benar."; }
+      else { row.className = "row bad"; fb.textContent = "Kurang tepat. Jawaban yang benar: " + q.R[q.key[i]] + "."; }
+    });
+  });
+  hasil.textContent = "Benar " + benar + " dari " + total + " pasangan (nilai " + Math.round(benar / total * 100) + ")" + (kosong ? ", " + kosong + " belum dijawab" : "");
+}
+
+document.getElementById("cek").onclick = periksa;
+document.getElementById("ulang").onclick = bangun;
+bangun();
+</script>
+</body>
+</html>
